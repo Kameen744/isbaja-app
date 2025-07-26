@@ -1,0 +1,211 @@
+/* Dark Mode CSS for Bootstrap 4 with Vue 3 */
+:root {
+  /* Light Mode (Default) Color Variables */
+  --primary-bg: #ffffff;
+  --secondary-bg: #f8f9fa;
+  --text-color: #212529;
+  --text-muted: #6c757d;
+
+  /* Dark Mode Color Variables */
+  --dark-primary-bg: #121212;
+  --dark-secondary-bg: #1e1e1e;
+  --dark-text-color: #e0e0e0;
+  --dark-text-muted: #a0a0a0;
+
+  /* Transition for smooth color changes */
+  --transition-speed: 0.3s;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: var(--dark-primary-bg);
+  color: var(--dark-text-color);
+  transition: background-color var(--transition-speed),
+    color var(--transition-speed);
+}
+
+/* Bootstrap Component Overrides for Dark Mode */
+body.dark-mode {
+  /* General Text Colors */
+  color: var(--dark-text-color);
+
+  /* Background Colors */
+  .bg-light {
+    background-color: var(--dark-secondary-bg) !important;
+    color: var(--dark-text-color);
+  }
+  button i {
+    color: #a0a0a0 !important;
+  }
+  .sidebar .slimScrollDiv,
+  .header {
+    background-color: rgb(54, 53, 53) !important;
+  }
+
+  /* ul {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: var(--dark-text-color);
+  } */
+
+  /* Card Styles */
+  .card {
+    background-color: var(--dark-secondary-bg);
+    border-color: #333;
+  }
+
+  .card-header {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid #333;
+  }
+
+  /* Form Controls */
+  .form-control {
+    background-color: #2c2c2c;
+    border-color: #444;
+    color: var(--dark-text-color);
+  }
+
+  label {
+    color: var(--dark-text-color) !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--dark-text-color) !important;
+  }
+
+  .sidebar .sidebar-menu > ul > li.submenu ul li a {
+    color: var(--dark-text-color) !important;
+  }
+
+  .sidebar .sidebar-menu > ul > li.submenu a span {
+    color: var(--dark-text-color) !important;
+  }
+
+  .form-control:focus {
+    background-color: #353535;
+    border-color: #666;
+    color: var(--dark-text-color);
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+  }
+
+  /* Select Dropdowns */
+  select.form-control {
+    background-color: #2c2c2c;
+    color: var(--dark-text-color);
+  }
+
+  /* Tables */
+  .table {
+    color: var(--dark-text-color);
+  }
+
+  table td,
+  i {
+    background-color: #2c2c2c !important;
+    color: var(--dark-text-color) !important;
+  }
+
+  table th {
+    background-color: #5a5757 !important;
+    color: var(--dark-text-color) !important;
+  }
+
+  .dash-count {
+    background-color: #2c2c2c !important;
+    color: var(--dark-text-color) !important;
+  }
+
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Buttons */
+  .btn-light,
+  .btn {
+    background-color: #444;
+    border-color: #555;
+    color: var(--dark-text-color);
+  }
+
+  .submenu ul {
+    background-color: #444 !important;
+    border-color: #555 !important;
+    color: var(--dark-text-color) !important;
+  }
+
+  button {
+    background-color: #444 !important;
+    border-color: #555 !important;
+    color: var(--dark-text-color) !important;
+  }
+
+  .btn-outline-secondary {
+    border-color: #666;
+    color: var(--dark-text-color);
+  }
+
+  /* Modal */
+  .modal-content {
+    background-color: var(--dark-secondary-bg);
+  }
+
+  .modal-header {
+    border-bottom: 1px solid #333;
+  }
+
+  .modal-footer {
+    border-top: 1px solid #333;
+  }
+
+  /* Dropdown */
+  .dropdown-menu {
+    background-color: #2c2c2c;
+    border-color: #444;
+  }
+
+  .dropdown-item {
+    color: var(--dark-text-color);
+  }
+
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--dark-text-color);
+  }
+
+  /* Navigation */
+  .navbar-light {
+    background-color: var(--dark-secondary-bg) !important;
+  }
+
+  .navbar-light .navbar-nav .nav-link {
+    color: var(--dark-text-color) !important;
+  }
+
+  /* Muted Text */
+  .text-muted {
+    color: var(--dark-text-muted) !important;
+  }
+}
+
+/* Dark Mode Toggle Button (Optional) */
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform var(--transition-speed);
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1);
+}
