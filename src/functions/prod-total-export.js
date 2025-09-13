@@ -65,7 +65,7 @@ const exportProdTotal = (
           <td>${toLoc(
             Number(dt.total_prod_bundle_added) +
               Number(dt.total_transfer_in) -
-              (Number(dt.total_prod_bundle_dispatched) +
+              (Number(dt.total_prod_bundle_removed) +
                 Number(dt.total_transfer_out))
           )}
           </td>

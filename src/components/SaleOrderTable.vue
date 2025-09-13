@@ -159,10 +159,11 @@ const filter = () => {
 
 const dispatchOrderModalRef = ref(null);
 // const dispatchData = ref(null);
-const showDispatchOrderModal = (data, t = true) => {
+const showDispatchOrderModal = (data, t = true, allData) => {
   // dispatchData.value = data;
   dispatchOrderModalRef.value.toggleDispatchModal(data, t);
 };
+
 onMounted(() => {
   getProdRows();
 });
@@ -309,7 +310,7 @@ const onTableChange = async (pagination) => {
         <div class="flex gap-4">
           <button
             class="btn text-success btn-sm"
-            @click="showDispatchOrderModal(data.value)"
+            @click="showDispatchOrderModal(data.value, true, filteredData)"
           >
             <i class="fas fa-eye fa-lg"></i>
           </button>

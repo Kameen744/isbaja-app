@@ -317,26 +317,26 @@ const handleWarehouseTabClick = (warehouse) => {
                       <td>
                         {{
                           store.fmtNum(
-                            Number(item.total_raw_bundle_added) +
-                              Number(item.total_transfer_in)
+                            Number(item.total_raw_bundle_added ?? 0) +
+                              Number(item.total_transfer_in ?? 0)
                           )
                         }}
                       </td>
                       <td>
                         {{
                           store.fmtNum(
-                            Number(item.total_raw_bundle_removed) +
-                              Number(item.total_transfer_out)
+                            Number(item.total_raw_bundle_removed ?? 0) +
+                              Number(item.total_transfer_out ?? 0)
                           )
                         }}
                       </td>
                       <td>
                         {{
                           store.fmtNum(
-                            Number(item.total_raw_bundle_added) +
-                              Number(item.total_transfer_in) -
-                              (Number(item.total_raw_bundle_removed) +
-                                Number(item.total_transfer_out))
+                            Number(item.total_raw_bundle_added ?? 0) +
+                              Number(item.total_transfer_in ?? 0) -
+                              (Number(item.total_raw_bundle_removed ?? 0) +
+                                Number(item.total_transfer_out ?? 0))
                           )
                         }}
                       </td>
@@ -420,41 +420,51 @@ const handleWarehouseTabClick = (warehouse) => {
                       <td>
                         {{
                           store.fmtNum(
-                            Number(item.total_prod_bundle_added) +
-                              Number(item.total_transfer_in)
+                            Number(item.total_prod_bundle_added ?? 0) +
+                              Number(item.total_transfer_in ?? 0)
                           )
                         }}
                       </td>
                       <td>
                         {{
                           store.fmtNum(
-                            Number(item.total_prod_bundle_removed) +
-                              Number(item.total_transfer_out)
+                            Number(item.total_prod_bundle_removed ?? 0) +
+                              Number(item.total_transfer_out ?? 0)
                           )
                         }}
                       </td>
                       <td>{{
-                        store.fmtNum(Number(item.total_prod_bundle_dispatched))
+                        store.fmtNum(
+                          Number(item.total_prod_bundle_dispatched ?? 0)
+                        )
                       }}</td>
                       <td
                         >₦{{
-                          store.fmtNum(Number(item.total_prod_amount_sold))
+                          store.fmtNum(Number(item.total_prod_amount_sold ?? 0))
                         }}</td
                       >
                       <td
                         >₦{{
                           store.fmtNum(
-                            Number(item.total_prod_amount_dispatched)
+                            Number(item.total_prod_amount_dispatched ?? 0)
                           )
                         }}</td
                       >
                       <td>
-                        {{
+                        <!-- {{
                           store.fmtNum(
                             Number(item.total_prod_bundle_added) +
                               Number(item.total_transfer_in) -
                               (Number(item.total_prod_bundle_dispatched) +
                                 Number(item.total_transfer_out))
+                          )
+                        }} -->
+                        {{
+                          store.fmtNum(
+                            Number(item.total_prod_bundle_added ?? 0) +
+                              Number(item.total_transfer_in ?? 0) -
+                              (Number(item.total_prod_bundle_removed ?? 0) +
+                                Number(item.total_transfer_out ?? 0))
                           )
                         }}
                       </td>

@@ -60,7 +60,6 @@ const changeStatus = async (data, stat) => {
 const filteredData = ref(null);
 
 const getProdRows = async () => {
-  console.log("tab mounted");
   // if (props.type === "local") {
   //   if (offlineRecords.value) {
   //     filteredData.value = offlineRecords.value.map(async (item) => {
@@ -91,6 +90,45 @@ const getProdRows = async () => {
   queryParams.value = `col=company_id&colId=${cCompany.value.id}`;
   const data = await store.req("get", props.secName);
   filteredData.value = data.data;
+};
+
+const filter = () => {
+  Swal.fire({
+    title: "Filter Data",
+    showCancelButton: true,
+    cancelButtonColor: "#d33",
+    allowOutsideClick: false,
+    width: "500px",
+    html: `
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="">From</label>
+        <input type="date" class="form-control" id="cutomerFrom" />
+      </div>
+      <div class="form-group col-md-6">
+        <label for="">To</label>
+        <input type="date" class="form-control" id="cutomerTo" />
+      </div>  
+    </div>
+   `,
+    focusConfirm: false,
+    preConfirm: () => {
+      return [
+        document.getElementById("cutomerFrom").value,
+        document.getElementById("cutomerTo").value,
+      ];
+    },
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      let val = result.value;
+      let url = `
+      filter?model=dispatch&from=${val[0]}&to=${val[1]}&compId=${cCompany.value.id}
+      `;
+      let data = await store.req("GET", url.trim());
+      // console.log(data);
+      filteredData.value = data.data;
+    }
+  });
 };
 
 // const filter = () => {
@@ -162,12 +200,12 @@ onMounted(() => {
       </div>
 
       <div class="items-center align-center">
-        <!-- <button
+        <button
           type="button"
           class="btn btn-primary btn-sm mx-2"
           @click="filter"
           >Filter</button
-        > -->
+        >
         <!-- <button
           type="button"
           class="btn btn-sm btn-secondary"

@@ -28,16 +28,18 @@ const exportRawTotal = (type, records, cols, title, from = null, to = null) => {
         rowhtml += `
           <td>${item}</td>
           <td>${toLoc(
-            Number(dt.total_raw_bundle_added) + Number(dt.total_transfer_in)
+            Number(dt.total_raw_bundle_added ?? 0) +
+              Number(dt.total_transfer_in ?? 0)
           )}</td>
           <td>${toLoc(
-            Number(dt.total_raw_bundle_removed) + Number(dt.total_transfer_out)
+            Number(dt.total_raw_bundle_removed ?? 0) +
+              Number(dt.total_transfer_out ?? 0)
           )}</td>
           <td>${toLoc(
-            Number(dt.total_raw_bundle_added) +
-              Number(dt.total_transfer_in) -
-              (Number(dt.total_raw_bundle_removed) +
-                Number(dt.total_transfer_out))
+            Number(dt.total_raw_bundle_added ?? 0) +
+              Number(dt.total_transfer_in ?? 0) -
+              (Number(dt.total_raw_bundle_removed ?? 0) +
+                Number(dt.total_transfer_out ?? 0))
           )}
           </td>
         `;

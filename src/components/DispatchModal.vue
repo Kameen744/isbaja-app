@@ -3,18 +3,20 @@ import { onMounted, ref } from "vue";
 import { useMainStore } from "./../stores/main-store";
 import { storeToRefs } from "pinia";
 import printSaleOrder from "../functions/sale-order-print";
+import exportDispatchOrderList from "../functions/order-dispatch-export";
 
 const store = useMainStore();
 const { isOnline, offlineRecords } = storeToRefs(store);
 const modalRef = ref(null);
 let DispatchOrderModal = null;
 let dispatchDatar = ref(null);
+let dispatchedOrderByIdList = ref(null);
 let dispatchFormData = ref({
   Sale_order_id: "",
   items: [],
 });
 
-const toggleDispatchModal = (data = null, t = false) => {
+const toggleDispatchModal = async (data = null, t = false) => {
   if (data) {
     dispatchDatar.value = data;
     dispatchFormData.value.Sale_order_id = data.id;
@@ -23,11 +25,15 @@ const toggleDispatchModal = (data = null, t = false) => {
       dispatchFormData.value.items[i]["dispatch"] = 0;
     }
   }
-
   if (t) {
     DispatchOrderModal.show();
   } else {
     DispatchOrderModal.hide();
+  }
+
+  if (data?.id) {
+    const d_by_id = await store.req("get", `dispatch-by-id/${data.id}`);
+    dispatchedOrderByIdList.value = d_by_id?.data;
   }
 };
 
@@ -118,14 +124,16 @@ defineExpose({ toggleDispatchModal });
               <tr v-for="(item, i) in dispatchFormData?.items">
                 <td>{{ item.item.name }}</td>
                 <td>{{ item.bundle_removed }}</td>
-                <td>{{ dispatchFormData.items[i].sale_order_dispatched }}</td>
+                <td>{{ item.sale_order_dispatched }}</td>
+                <!-- <td>{{ dispatchFormData.items[i].sale_order_dispatched }}</td> -->
                 <td>
                   <input
                     class="form-control sm-form-cont"
                     type="number"
                     v-model="dispatchFormData.items[i].dispatch"
                     :disabled="
-                      item.bundle_removed == item.sale_order_dispatched
+                      Number(item.bundle_removed ?? 0) ==
+                      Number(item.sale_order_dispatched ?? 0)
                     "
                     @focusin="store.onNumInputFocus"
                     @focusout="store.onNumInputFocusOut"
@@ -133,14 +141,17 @@ defineExpose({ toggleDispatchModal });
                 </td>
                 <td>
                   <span
-                    v-if="item.bundle_removed == item.sale_order_dispatched"
+                    v-if="
+                      Number(item.bundle_removed ?? 0) ==
+                      Number(item.sale_order_dispatched ?? 0)
+                    "
                   >
                     Completed
                   </span>
                   <span v-else>
                     Dsp: ({{ item.sale_order_dispatched }}) Rem: ({{
-                      Number(item.bundle_removed) -
-                      Number(item.sale_order_dispatched)
+                      Number(item.bundle_removed ?? 0) -
+                      Number(item.sale_order_dispatched ?? 0)
                     }})
                   </span>
                 </td>
@@ -172,9 +183,18 @@ defineExpose({ toggleDispatchModal });
             >
               Download <i class="fas fa-download fa-lg"></i>
             </button>
-            <button
+            <!-- <button
               class="btn btn-info btn-sm"
               @click.prevent="printSaleOrder(dispatchDatar)"
+            >
+              Print PDF <i class="fas fa-file-pdf fa-lg"></i>
+            </button> -->
+            <button
+              v-if="dispatchedOrderByIdList"
+              class="btn btn-info btn-sm"
+              @click.prevent="
+                exportDispatchOrderList(dispatchedOrderByIdList, dispatchDatar)
+              "
             >
               Print PDF <i class="fas fa-file-pdf fa-lg"></i>
             </button>

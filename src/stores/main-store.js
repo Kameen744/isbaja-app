@@ -7,9 +7,9 @@ import { useRoute, useRouter } from "vue-router";
 import moment from "moment-timezone";
 import { toRaw } from "vue";
 
-// const baseUrl = "https://isbaja-api.test";
+const baseUrl = "https://isbaja-api.test";
 // const baseUrlT = "http://127.0.0.1:8000";
-const baseUrl = "https://api.isbaja.com";
+// const baseUrl = "https://api.isbaja.com";
 axios.defaults.baseURL = `${baseUrl}/api/`;
 
 // it clicked on a dashbaord to should take you to the main item.

@@ -24,8 +24,8 @@ const login = async () => {
     // https://isbaja-api.test
     // https://api.isbaja.com
     axios
-      .get("https://api.isbaja.com/sanctum/csrf-cookie")
-      // .get("https://isbaja-api.test/sanctum/csrf-cookie")
+      // .get("https://api.isbaja.com/sanctum/csrf-cookie")
+      .get("https://isbaja-api.test/sanctum/csrf-cookie")
       .then(async (response) => {
         let loginReq = await store.req("post", "auth/login", data.value);
         if (loginReq.status === false) {

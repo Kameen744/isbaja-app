@@ -13,6 +13,7 @@ import SaleOrderReceiptHTML from "../functions/sale-order-html";
 import { writeFile, BaseDirectory } from "@tauri-apps/plugin-fs";
 import * as dialog from "@tauri-apps/plugin-dialog";
 import { downloadDir } from "@tauri-apps/api/path";
+import Multiselect from "vue-multiselect";
 
 // import * as dialog from "@tauri-apps/plugin-dialog";
 // import { writeFile } from "@tauri-apps/plugin-fs";
@@ -261,9 +262,37 @@ const selectCustomerEvent = (val) => {
   formData.value.name = "";
 };
 
-const onCustomerInput = (event) => {
-  formData.value.phone = "";
-  formData.value.name = event.input;
+const dedupeInPlace = (list) => {
+  const seen = new Set();
+  let i = 0;
+
+  while (i < list.length) {
+    const name = String(list[i].name ?? list[i]["name"] ?? "");
+
+    const key = `${name.toLowerCase()}`;
+
+    if (seen.has(key)) {
+      list.splice(i, 1); // duplicate – remove it
+    } else {
+      seen.add(key); // first time we see this pair
+      i++; // move to the next element
+    }
+  }
+
+  return list;
+};
+
+const onCustomerInput = async (event) => {
+  if (event.input.length > 0) {
+    await store.req("get", `/filter/customer/${event.input}`).then((res) => {
+      // customers.value = res;
+      if (res?.data && res.data.length > 0) {
+        customers.value = { data: dedupeInPlace(res.data) };
+      }
+    });
+    formData.value.phone = "";
+    formData.value.name = event.input;
+  }
 };
 
 // const onInputFocus = (event) => {
@@ -323,7 +352,7 @@ const onCustomerInput = (event) => {
                   placeholder="Customer name"
                   @selectItem="selectCustomerEvent"
                   @onInput="onCustomerInput"
-                  :minInputLength="1"
+                  :minInputLength="2"
                   :itemProjection="
                     (item) => {
                       return item.name;
@@ -331,6 +360,12 @@ const onCustomerInput = (event) => {
                   "
                 />
               </div>
+              <!-- <label>Customer Name</label>
+              <multiselect
+                class="mt-1"
+                v-model="formData.name"
+                :options="customers.data"
+              ></multiselect> -->
             </div>
 
             <InputField
@@ -459,7 +494,7 @@ const onCustomerInput = (event) => {
     </div>
   </div>
 </template>
-
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
 .remove-bg {
   background: rgba(255, 0, 0, 0.05);

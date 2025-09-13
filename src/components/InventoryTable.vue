@@ -302,7 +302,7 @@ const filter = () => {
       :selectRowOnClick="true"
       :stickyHeader="true"
       sortColumn="created"
-      sortDirection="asc"
+      sortDirection="desc"
       class="alt-pagination"
       skin="bh-table-hover"
     >

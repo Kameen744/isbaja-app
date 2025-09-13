@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useMainStore } from "../stores/main-store";
 import { storeToRefs } from "pinia";
+import exportPendingOrder from "./../functions/pending-order-export";
 
 const store = useMainStore();
 const { bUrl, cPage, cCompany } = storeToRefs(store);
@@ -15,7 +16,7 @@ const fetchPendingOrders = async (page = 1) => {
   loading.value = true;
   try {
     const res = await axios.get(
-      `${bUrl.value}/api/pending-orders?page=${page}`
+      `${bUrl.value}/api/pending-orders?page=${page}&compId=${cCompany.value.id}`
     );
     pendingOrders.value = res.data.data;
   } catch (e) {
@@ -54,6 +55,20 @@ onMounted(() => {
               <i class="fas fa-arrow-circle-left"></i> Back to Dashboard
             </button>
             <h4 class="card-title">Pending Orders</h4>
+            <button
+              type="button"
+              class="btn btn-sm btn-secondary"
+              @click="
+                exportPendingOrder(
+                  'print',
+                  null,
+                  pendingOrders,
+                  `Pending orders page - ${currentPage}`
+                )
+              "
+            >
+              <i class="fas fa-print"></i> PRINT
+            </button>
           </div>
           <div v-if="loading" class="text-center">Loading...</div>
           <div v-else>
@@ -96,7 +111,8 @@ onMounted(() => {
                           }}</td>
                           <template
                             v-if="
-                              item.bundle_removed > item.sale_order_dispatched
+                              Number(item.bundle_removed ?? 0) >
+                              Number(item.sale_order_dispatched ?? 0)
                             "
                           >
                             <td>{{ item.item?.name }}</td>
@@ -104,11 +120,14 @@ onMounted(() => {
                             <td>
                               {{ item.sale_order_dispatched }}
                             </td>
-                            <td>{{
-                              store.fmtNum
-                                ? store.fmtNum(item.price)
-                                : item.price
-                            }}</td>
+                            <td
+                              >₦{{
+                                // store.fmtNum
+                                //   ? store.fmtNum(item.price)
+                                //   : item.price
+                                store.fmtNum(Number(item.price ?? 0))
+                              }}</td
+                            >
                           </template>
                         </tr>
                       </template>
