@@ -8,6 +8,7 @@ import exportRawTotal from "../functions/raw-total-export";
 // import InputField from "../components/InputField.vue";
 import { onMounted, ref, watch } from "vue";
 import Swal from "sweetalert2";
+import MainFinance from "./Main-Finance.vue";
 
 const store = useMainStore();
 const {
@@ -28,6 +29,8 @@ const selectCompanyPrompt = ref(false);
 const filterFrom = ref("");
 const filterTo = ref("");
 const selectedWarehouse = ref("");
+const finished_products_other_removals = ref([]);
+const raw_materials_other_removals = ref([]);
 
 onMounted(async () => {
   if (authUser.value?.company) {
@@ -36,7 +39,6 @@ onMounted(async () => {
     selectCompanyPrompt.value = true;
   }
 
-  // Initial fetch of totals if a company is already selected
   if (cCompany.value) {
     await fetchTotals();
   }
@@ -156,6 +158,27 @@ const prodTotalCols = [
   { title: "Qty in Stock" },
 ];
 
+const getProdTotalCols = () => {
+  let prodTotalCols = [
+    { title: "Warehouse" },
+    { title: "Item" },
+    { title: "Qty Added" },
+    { title: "Qty Sold" },
+    { title: "Qty Dsptch" },
+    { title: "Amount Sold" },
+    { title: "Amount Dsptch" },
+    { title: "Qty in Stock" },
+  ];
+
+  if (totals.value?.data?.other_prod_removals_title) {
+    totals.value.data.other_prod_removals_title.forEach((title) => {
+      prodTotalCols.splice(3, 0, { title });
+    });
+  }
+  // console.log(prodTotalCols);
+  return prodTotalCols;
+};
+
 const rawTotalCols = [
   { title: "Warehouse" },
   { title: "Item" },
@@ -173,7 +196,8 @@ const handleWarehouseTabClick = (warehouse) => {
 </script>
 
 <template>
-  <div class="page-wrapper">
+  <MainFinance v-if="cPage.includes('finance') && appInitialized"></MainFinance>
+  <div v-else class="page-wrapper">
     <SelectCompModel
       v-if="appInitialized && selectCompanyPrompt"
       :cComp="cCompany"
@@ -372,7 +396,8 @@ const handleWarehouseTabClick = (warehouse) => {
                 exportProdTotal(
                   'print',
                   totals?.data?.all_prod_data,
-                  prodTotalCols,
+                  totals?.data?.other_prod_removals_title,
+                  getProdTotalCols(),
                   'Products Report',
                   totals?.data?.from,
                   totals?.data?.to
@@ -388,16 +413,9 @@ const handleWarehouseTabClick = (warehouse) => {
             v-if="totals?.data?.all_prod_data"
           >
             <table class="table table-bordered table-hover table-sm">
-              <thead class="table-light text-nowrap">
+              <thead class="table-light text-nowrap" v-if="totals?.data">
                 <tr>
-                  <th>Warehouse</th>
-                  <th>Item</th>
-                  <th>Qty Added</th>
-                  <th>Qty Sold</th>
-                  <th>Qty Dsptch</th>
-                  <th>Amount Sold</th>
-                  <th>Amount Dsptch</th>
-                  <th>Qty in Stock</th>
+                  <th v-for="col in getProdTotalCols()">{{ col.title }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -425,11 +443,32 @@ const handleWarehouseTabClick = (warehouse) => {
                           )
                         }}
                       </td>
+                      <template v-if="item.total_of_other_removals > 0">
+                        <!-- <td v-for="removed in item.other_removals">
+                          {{ store.fmtNum(removed.total_removed) }}
+                        </td> -->
+                        <td
+                          v-for="(rm, i) in totals?.data
+                            ?.other_prod_removals_title"
+                          >{{ item?.other_removals[i]?.total_removed ?? 0 }}</td
+                        >
+                      </template>
+                      <template v-else>
+                        <td v-for="i in totals?.data?.other_prod_removals_title"
+                          >0</td
+                        >
+                      </template>
                       <td>
-                        {{
+                        <!-- {{
                           store.fmtNum(
                             Number(item.total_prod_bundle_removed ?? 0) +
                               Number(item.total_transfer_out ?? 0)
+                          )
+                        }} -->
+                        {{
+                          store.fmtNum(
+                            Number(item.total_prod_bundle_sold ?? 0)
+                            // + Number(item.total_transfer_out ?? 0)
                           )
                         }}
                       </td>
@@ -451,22 +490,23 @@ const handleWarehouseTabClick = (warehouse) => {
                         }}</td
                       >
                       <td>
-                        <!-- {{
+                        {{
                           store.fmtNum(
                             Number(item.total_prod_bundle_added) +
                               Number(item.total_transfer_in) -
                               (Number(item.total_prod_bundle_dispatched) +
-                                Number(item.total_transfer_out))
+                                Number(item.total_transfer_out) +
+                                Number(item.total_of_other_removals))
                           )
-                        }} -->
-                        {{
+                        }}
+                        <!-- {{
                           store.fmtNum(
                             Number(item.total_prod_bundle_added ?? 0) +
                               Number(item.total_transfer_in ?? 0) -
                               (Number(item.total_prod_bundle_removed ?? 0) +
                                 Number(item.total_transfer_out ?? 0))
                           )
-                        }}
+                        }} -->
                       </td>
                     </tr>
                   </template>

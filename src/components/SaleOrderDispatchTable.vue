@@ -60,35 +60,8 @@ const changeStatus = async (data, stat) => {
 const filteredData = ref(null);
 
 const getProdRows = async () => {
-  // if (props.type === "local") {
-  //   if (offlineRecords.value) {
-  //     filteredData.value = offlineRecords.value.map(async (item) => {
-  //       item.create = item.local_date;
-  //       item.status = "Pending";
-  //       item.created_by = authUser.name ?? "local data";
-  //       item.updated_by = authUser.name ?? "local data";
-  //       item.customer = await store.getObj(
-  //         customers.value.data,
-  //         item.customer_id
-  //       );
-  //       item.customer_name = item.customer.name;
-  //       for (let i = 0; i < item.items.length; i++) {
-  //         item.items[i].item = store.getItem(item.items[i].item_id);
-  //       }
-  //       return item;
-  //     });
-  //   } else {
-  //     filteredData.value = offlineRecords.value;
-  //   }
-  // } else {
-  //   filteredData.value = records.value.data.map((item) => {
-  //     item.customer_name = item.customer.name;
-  //     return item;
-  //   });
-  // }
-
   queryParams.value = `col=company_id&colId=${cCompany.value.id}`;
-  const data = await store.req("get", props.secName);
+  const data = await store.req("get", `${props.secName}?${queryParams.value}`);
   filteredData.value = data.data;
 };
 
@@ -130,53 +103,6 @@ const filter = () => {
     }
   });
 };
-
-// const filter = () => {
-//   Swal.fire({
-//     title: "Filter Data",
-//     showCancelButton: true,
-//     cancelButtonColor: "#d33",
-//     allowOutsideClick: false,
-//     width: "500px",
-//     html: `
-//     <div class="row">
-//       <div class="form-group col-md-6">
-//         <label for="">From</label>
-//         <input type="date" class="form-control" id="saleFrom" />
-//       </div>
-//       <div class="form-group col-md-6">
-//         <label for="">To</label>
-//         <input type="date" class="form-control" id="saleTo" />
-//       </div>
-//       <div class="form-group col-md-6">
-//         <label for="">Customer</label>
-//         <input type="text" class="form-control" id="slOcustm" placeholder="Customer" />
-//       </div>
-//       <div class="form-group col-md-6">
-//         <label for="">Item Sold</label>
-//         <input type="text" class="form-control" id="slOitem" placeholder="Item Sold" />
-//       </div>
-//     </div>
-//    `,
-//     focusConfirm: false,
-//     preConfirm: () => {
-//       return [
-//         document.getElementById("saleFrom").value,
-//         document.getElementById("saleTo").value,
-//         document.getElementById("slOcustm").value,
-//         document.getElementById("slOitem").value,
-//       ];
-//     },
-//   }).then(async (result) => {
-//     if (result.isConfirmed) {
-//       let val = result.value;
-//       let url = `filter?model=sale&customer=${val[2]}&item=${val[3]}&from=${val[0]}&to=${val[1]}&compId=${cCompany.value.id}`;
-//       let data = await store.req("GET", url);
-//       store.records = data;
-//       getProdRows();
-//     }
-//   });
-// };
 
 const dispatchOrderModalRef = ref(null);
 const showDispatchOrderModal = (data, t = true) => {

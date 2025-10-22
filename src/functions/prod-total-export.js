@@ -3,6 +3,7 @@ import baseExport from "./base-export";
 const exportProdTotal = (
   type,
   records,
+  other_removals,
   cols,
   title,
   from = null,
@@ -56,8 +57,24 @@ const exportProdTotal = (
           <td>${toLoc(
             Number(dt.total_prod_bundle_added) + Number(dt.total_transfer_in)
           )}</td>
+        `;
+
+        if (dt.total_of_other_removals > 0) {
+          other_removals.forEach((title, idx) => {
+            rowhtml += `<td>${toLoc(
+              Number(dt.other_removals?.[idx]?.total_removed || 0)
+            )}</td>`;
+          });
+        } else {
+          other_removals.forEach((title, idx) => {
+            rowhtml += `<td>0</td>`;
+          });
+        }
+
+        rowhtml += `
           <td>${toLoc(
-            Number(dt.total_prod_bundle_removed) + Number(dt.total_transfer_out)
+            // Number(dt.total_prod_bundle_removed) + Number(dt.total_transfer_out)
+            Number(dt.total_prod_bundle_sold)
           )}</td>
           <td>${toLoc(Number(dt.total_prod_bundle_dispatched))}</td>
           <td>₦ ${toLoc(Number(dt.total_prod_amount_sold))}</td>
@@ -65,8 +82,9 @@ const exportProdTotal = (
           <td>${toLoc(
             Number(dt.total_prod_bundle_added) +
               Number(dt.total_transfer_in) -
-              (Number(dt.total_prod_bundle_removed) +
-                Number(dt.total_transfer_out))
+              (Number(dt.total_prod_bundle_dispatched) +
+                Number(dt.total_transfer_out) +
+                Number(dt.total_of_other_removals))
           )}
           </td>
         `;

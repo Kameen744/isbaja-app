@@ -62,7 +62,21 @@ const getInvRows = async () => {
   if (props.type === "local") {
     recordsToMap = offlineRecords.value;
   } else {
-    recordsToMap = (await records.value.data) || [];
+    // recordsToMap = (await records.value.data) || [];
+    queryParams.value = `col=company_id&colId=${cCompany.value.id}`;
+    const params = new URLSearchParams(queryParams.value);
+    params.set("size", pageSize.value);
+
+    let data = await store.req("GET", `inventory?${params.toString()}`);
+
+    totalRows.value = data.data.total;
+    currentPage.value = data.data.current_page;
+    pageSize.value = data.data.per_page;
+
+    recordsToMap = data.data.data;
+
+    tableKey.value += 1;
+    tabLoading.value = false;
   }
 
   inventoryRecords.value = recordsToMap.map((rec) => {
@@ -237,6 +251,69 @@ const filter = () => {
     }
   });
 };
+
+const filteredData = ref(null);
+const totalRows = ref(null);
+const currentPage = ref(1);
+const pageSize = ref(20);
+const sortBy = ref("created_at");
+const sortDir = ref("desc");
+const tabLoading = ref(false);
+const tableKey = ref(0);
+
+const onTableChange = async (pagination) => {
+  tabLoading.value = true;
+  currentPage.value = pagination.current_page;
+  pageSize.value = pagination.pagesize;
+  sortBy.value = pagination.sort_column;
+  sortDir.value = pagination.sort_direction;
+
+  const params = new URLSearchParams(queryParams.value);
+  params.set("page", currentPage.value);
+  params.set("size", pageSize.value);
+  params.set("sort_column", sortBy.value);
+  params.set("sort_direction", sortDir.value);
+  if (searchTxt.value) {
+    params.set("search", searchTxt.value);
+  }
+
+  let data = await store.req("GET", `inventory?${params.toString()}`);
+  // console.log(data);
+
+  // Update pagination info
+  totalRows.value = data.data.total;
+  currentPage.value = data.data.current_page;
+  pageSize.value = data.data.per_page;
+
+  inventoryRecords.value = data.data.data.map((rec) => {
+    let obj = {};
+    obj = additionalProps(obj, rec, rec.item);
+
+    if (rec?.ware_house_id) {
+      const wareObj = store.getWarehouse(rec.ware_house_id);
+      obj.warehouse_name = wareObj?.name ?? " - ";
+    }
+
+    if (rec?.supplier_id) {
+      const suppObj = store.getSupplier(rec.supplier_id);
+      obj.supplier_name = suppObj?.name ?? " - ";
+      obj.supplier_phone = suppObj?.phone ?? "";
+      obj.supplier_acc_no = suppObj?.acc_no ?? "";
+    } else {
+      obj.supplier_name = " - ";
+    }
+
+    obj.company = rec.item?.company?.name ?? " - ";
+    obj.created =
+      props.type === "local" ? "0000-00-00" : store.fmtDate(rec.created);
+    obj.id = rec?.id;
+
+    return obj;
+  });
+
+  tableKey.value += 1;
+  tabLoading.value = false;
+};
 </script>
 
 <template>
@@ -292,11 +369,9 @@ const filter = () => {
       </div>
     </div>
 
-    <vue3-datatable
-      ref="inventoryTableRef"
-      :rows="inventoryRecords"
+    <!-- 
+    :rows="inventoryRecords"
       :columns="tabCols"
-      :sortable="true"
       :search="searchTxt"
       :hasCheckbox="true"
       :selectRowOnClick="true"
@@ -305,6 +380,28 @@ const filter = () => {
       sortDirection="desc"
       class="alt-pagination"
       skin="bh-table-hover"
+    
+    -->
+    <vue3-datatable
+      ref="inventoryTableRef"
+      :key="tableKey"
+      :loading="tabLoading"
+      :rows="filteredData || inventoryRecords"
+      :columns="tabCols"
+      :sortable="true"
+      :totalRows="totalRows"
+      :page="currentPage"
+      :isServerMode="true"
+      :sortColumn="tabCols.created"
+      sortDirection="desc"
+      :search="searchTxt"
+      :hasCheckbox="true"
+      :selectRowOnClick="false"
+      :stickyHeader="true"
+      :pageSize="pageSize"
+      class="alt-pagination"
+      skin="bh-table-hover"
+      @change="onTableChange"
     >
       <template #note="data">
         <button

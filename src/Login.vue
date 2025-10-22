@@ -10,7 +10,7 @@ const router = useRouter();
 const route = useRoute();
 const store = useMainStore();
 const loginProgress = ref(false);
-const { isLoggedIn } = storeToRefs(store);
+const { isLoggedIn, bUrl } = storeToRefs(store);
 const data = ref({
   email: "",
   password: "",
@@ -21,11 +21,10 @@ const authError = ref("");
 const login = async () => {
   if (data.value.email && data.value.password) {
     loginProgress.value = true;
-    // https://isbaja-api.test
-    // https://api.isbaja.com
     axios
       // .get("https://api.isbaja.com/sanctum/csrf-cookie")
-      .get("https://isbaja-api.test/sanctum/csrf-cookie")
+      // .get("https://isbaja-api.test/sanctum/csrf-cookie")
+      .get(`${bUrl.value}/sanctum/csrf-cookie`)
       .then(async (response) => {
         let loginReq = await store.req("post", "auth/login", data.value);
         if (loginReq.status === false) {

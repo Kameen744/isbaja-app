@@ -85,7 +85,7 @@ const showLocaRecModal = (t = true) => {
   inventoryRecModalRef.value.toggleLocalRecModal(t);
 };
 
-const tableRows = ref([]);
+// const tableRows = ref([]);
 
 const sectionName = "inventory";
 const action = ref(null);
@@ -93,37 +93,35 @@ const loaded = ref(false);
 const searchTxt = ref("");
 const datatable = ref(null);
 
-const loadTableRows = () => {
-  for (let i = 0; i < records.value.data.length; i++) {
-    let rec = records.value.data[i];
-    let itemObj = rec.item;
-    let obj = {
-      id: rec.id,
-      company: rec.company.name,
-      item: rec.item.name,
-      created: store.fmtDate(rec.created),
-    };
-
-    if (rec.add_note != "N/A") {
-      obj.note = rec.add_note;
-      obj.bundle = rec.bundle_added;
-      obj.unit = rec.unit_added;
-      obj.type = "add";
-    } else {
-      obj.note = rec.remove_note;
-      obj.bundle = rec.bundle_removed;
-      obj.unit = rec.unit_removed;
-      obj.type = "remove";
-    }
-
-    let sts = `${obj.bundle} ${itemObj.bundle_measure}(s)`;
-    if (obj.unit && obj.unit > 0) {
-      sts = sts + ` and ${obj.unit} ${itemObj.unit_measure}(s)`;
-    }
-    obj.status = sts;
-    tableRows.value.push(obj);
-  }
-};
+// const loadTableRows = () => {
+//   // for (let i = 0; i < records.value.data.length; i++) {
+//   //   let rec = records.value.data[i];
+//   //   let itemObj = rec.item;
+//   //   let obj = {
+//   //     id: rec.id,
+//   //     company: rec.company.name,
+//   //     item: rec.item.name,
+//   //     created: store.fmtDate(rec.created),
+//   //   };
+//   //   if (rec.add_note != "N/A") {
+//   //     obj.note = rec.add_note;
+//   //     obj.bundle = rec.bundle_added;
+//   //     obj.unit = rec.unit_added;
+//   //     obj.type = "add";
+//   //   } else {
+//   //     obj.note = rec.remove_note;
+//   //     obj.bundle = rec.bundle_removed;
+//   //     obj.unit = rec.unit_removed;
+//   //     obj.type = "remove";
+//   //   }
+//   //   let sts = `${obj.bundle} ${itemObj.bundle_measure}(s)`;
+//   //   if (obj.unit && obj.unit > 0) {
+//   //     sts = sts + ` and ${obj.unit} ${itemObj.unit_measure}(s)`;
+//   //   }
+//   //   obj.status = sts;
+//   //   tableRows.value.push(obj);
+//   // }
+// };
 
 onMounted(async () => {
   store.loading();
@@ -140,9 +138,9 @@ onMounted(async () => {
   offlineRecords.value = await store.getOffline(`form/post/${sectionName}`);
 
   queryParams.value = `col=company_id&colId=${cCompany.value.id}`;
-  await store.getRecord(sectionName);
+  // await store.getRecord(sectionName);
   suppliers.value = await store.req("get", "supplier");
-  loadTableRows();
+  // loadTableRows();
   loaded.value = true;
   store.loading(false);
 });
@@ -519,10 +517,10 @@ const cancelEditingTransfer = () => {
           <InventoryTable
             :tabCols="tableCols"
             :secName="sectionName"
-            :key="records?.length ?? 1 + Math.random()"
             @edit="edit"
           />
         </div>
+        <!--:key="records?.length ?? 1 + Math.random()" -->
       </div>
       <InventoryRecModel
         ref="inventoryRecModalRef"
