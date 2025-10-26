@@ -6,6 +6,7 @@ import exportInventory from "../functions/inventory-export";
 import Swal from "sweetalert2";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
+import { clear } from "localforage";
 
 const store = useMainStore();
 const {
@@ -28,6 +29,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["edit"]);
+const filtered = ref(false);
 
 const additionalProps = (obj, rec, itemObj) => {
   const isAddNote = rec.add_note && rec.add_note !== "N/A";
@@ -56,9 +58,38 @@ const additionalProps = (obj, rec, itemObj) => {
   return obj;
 };
 
+const updateTableData = (recordsToMap) => {
+  inventoryRecords.value = recordsToMap.map((rec) => {
+    let itemObj = store.getItem(rec.item_id);
+    let obj = {};
+    obj = additionalProps(obj, rec, itemObj);
+
+    if (rec?.ware_house_id) {
+      let wareObj = store.getWarehouse(rec.ware_house_id);
+      obj.warehouse_name = wareObj?.name ?? " - ";
+    }
+
+    if (rec?.supplier_id) {
+      let suppObj = store.getSupplier(rec.supplier_id);
+      obj.supplier_name = suppObj?.name ?? " - ";
+      obj.supplier_phone = suppObj?.phone ?? "";
+      obj.supplier_acc_no = suppObj?.acc_no ?? "";
+    } else {
+      obj.supplier_name = " - ";
+    }
+
+    obj.company = itemObj?.company?.name ?? " - ";
+    obj.created =
+      props.type === "local" ? "0000-00-00" : store.fmtDate(rec.created);
+    obj.id = rec?.id;
+
+    return obj;
+  });
+};
+
 const getInvRows = async () => {
   let recordsToMap;
-
+  filtered.value = false;
   if (props.type === "local") {
     recordsToMap = offlineRecords.value;
   } else {
@@ -78,35 +109,7 @@ const getInvRows = async () => {
     tableKey.value += 1;
     tabLoading.value = false;
   }
-
-  inventoryRecords.value = recordsToMap.map((rec) => {
-    let obj = {};
-    let itemObj =
-      props.type === "local" ? store.getItem(rec.item_id) : rec.item;
-
-    obj = additionalProps(obj, rec, itemObj);
-
-    if (rec?.ware_house_id) {
-      const wareObj = store.getWarehouse(rec.ware_house_id);
-      obj.warehouse_name = wareObj?.name ?? " - ";
-    }
-
-    if (rec?.supplier_id) {
-      const suppObj = store.getSupplier(rec.supplier_id);
-      obj.supplier_name = suppObj?.name ?? " - ";
-      obj.supplier_phone = suppObj?.phone ?? "";
-      obj.supplier_acc_no = suppObj?.acc_no ?? "";
-    } else {
-      obj.supplier_name = " - ";
-    }
-
-    obj.company = itemObj?.company?.name ?? " - ";
-    obj.created =
-      props.type === "local" ? "0000-00-00" : store.fmtDate(rec.created);
-    obj.id = rec?.id;
-
-    return obj;
-  });
+  updateTableData(recordsToMap);
 };
 
 // const additionalProps = (obj, rec, itemObj) => {
@@ -247,7 +250,17 @@ const filter = () => {
       let url = `filter?model=inventory&note=${val[2]}&from=${val[0]}&to=${val[1]}&compId=${cCompany.value.id}&item=${val[3]}`;
       let data = await store.req("GET", url);
       store.records = data;
-      getInvRows();
+      // getInvRows();
+      let recordsToMap = data.data || [];
+
+      // if possible hide pagination here
+
+      currentPage.value = 1;
+      totalRows.value = 1;
+      // pageSize.value = 20;
+
+      updateTableData(recordsToMap);
+      filtered.value = true;
     }
   });
 };
@@ -334,6 +347,13 @@ const onTableChange = async (pagination) => {
           class="btn btn-primary btn-sm mx-2"
           @click="filter"
           >Filter</button
+        >
+        <button
+          v-if="filtered"
+          type="button"
+          class="btn btn-secondary btn-sm mx-2"
+          @click="getInvRows"
+          >Clear Filters</button
         >
         <button
           type="button"
